@@ -31,9 +31,8 @@
 
 -A INPUT -j LOG_DROP
 
-#-A FORWARD -i eth0 -j LOG_DROP
+-A FORWARD -i eth0 -j LOG_DROP
 
-#-A OUTPUT -j ACCEPT
 -A OUTPUT -m tcp -p tcp --sport 44444 -d 192.168.1.1 -j ACCEPT
 
 -A OUTPUT -p icmp -j ACCEPT
