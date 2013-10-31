@@ -10,7 +10,7 @@
 #
 #########################################################
 #
-# Those are simple firewall rules, which will deny 
+# Those are simple firewall rules, which will deny
 # any incoming / outgoing traffic to / from Your host.
 # SSH connections on 44444 port will be allowed.
 # Assuming that Your bastion host is 192.168.0.1 (so
@@ -24,23 +24,33 @@
 :LOG_DROP - [0:0]
 :LOG_ACCEPT - [0:0]
 
+###################
+# INPUT chain:
 -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 -A INPUT -p icmp --icmp-type 8 -j ACCEPT
 -A INPUT -i lo -j ACCEPT
 -A INPUT -i eth0 -m state --state NEW -m tcp -p tcp --dport 44444 -s 192.168.0.1 -j ACCEPT
-
 -A INPUT -j LOG_DROP
 
+###################
+# FORWARD chain:
 -A FORWARD -i eth0 -j LOG_DROP
 
+###################
+# OUTPUT chain:
+-A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+-A OUTPUT -d 127.0.0.1 -j ACCEPT
 -A OUTPUT -m tcp -p tcp --sport 44444 -d 192.168.1.1 -j ACCEPT
-
 -A OUTPUT -p icmp -j ACCEPT
 -A OUTPUT -j LOG_DROP
 
+###################
+# LOG_DROP chain:
 -A LOG_DROP -m limit --limit 2/sec -j LOG --log-prefix "iptables drop: " --log-tcp-options --log-ip-options
 -A LOG_DROP -j DROP
 
+###################
+# LOG_ACCEPT chain:
 -A LOG_ACCEPT -m limit --limit 2/sec -j LOG --log-prefix "iptables accept: " --log-tcp-options --log-ip-options
 -A LOG_ACCEPT -j ACCEPT
 
